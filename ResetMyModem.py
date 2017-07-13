@@ -1,8 +1,11 @@
 #!/usr/bin/python
-
+import logging
 import requests
 import time
 import RPi.GPIO as gpio
+
+
+logging.basicConfig(filename='ResetMyModem.log',level=logging.DEBUG)
 
 MODEM_RELE_GPIO = 11
 STAY_OFF_FOR = 90
@@ -19,6 +22,7 @@ def is_connected():
         requests.get('http://216.58.194.78', timeout=TIMEOUT_AT)
         return True
     except: 
+        logging.warning('Could not get response from request')
         return False
 
 def reset_modem():
@@ -26,10 +30,12 @@ def reset_modem():
     Reset the Modem turning the GPIO LOW (The module used requires this)
     """
     print("Reseting Modem... \nplease wait!")
+    logging.info("Reseting Modem... \nplease wait!")
     gpio.output(MODEM_RELE_GPIO, gpio.LOW)
     time.sleep(5)
     gpio.output(MODEM_RELE_GPIO, gpio.HIGH)
     time.sleep(STAY_OFF_FOR) #wait the modem reset
+    logging.info("Modem Reseted")
     print("Modem Reseted!")
 
 def config_gpio():
@@ -69,6 +75,7 @@ def main():
             break
         
     print("Reseting GPIO states!")
+    logging.info("Reseting GPIO states!")
     gpio.cleanup()
             
 if  __name__ =='__main__':main()
